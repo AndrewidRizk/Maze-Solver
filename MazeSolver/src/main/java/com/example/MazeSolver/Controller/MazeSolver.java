@@ -1,4 +1,4 @@
-package com.example.MazeSolver.mazeGenerator;
+package com.example.MazeSolver.Controller;
 
 import java.util.ArrayList;
 

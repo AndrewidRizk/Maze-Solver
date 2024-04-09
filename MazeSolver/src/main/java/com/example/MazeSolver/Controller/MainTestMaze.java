@@ -1,4 +1,4 @@
-package com.example.MazeSolver.mazeGenerator;
+package com.example.MazeSolver.Controller;
 
 @SuppressWarnings("javadoc")
 public class MainTestMaze {
@@ -16,10 +16,8 @@ public class MainTestMaze {
 		Maze b = new Maze(array);
 
 		b.getReference().toString();
-		System.out.println("----------------------------");
 		String pass = a.findPath(4, 1);
 		System.out.println(pass);
-		System.out.println("----------------------------");
 
 	}
 
