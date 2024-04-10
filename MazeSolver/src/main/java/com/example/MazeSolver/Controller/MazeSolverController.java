@@ -13,5 +13,4 @@ public class MazeSolverController {
         mazeSolver.setup(mazeArray);
         return mazeSolver.findPath(4, 1);
     }
-
 }
