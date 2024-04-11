@@ -21,6 +21,7 @@ public class MazeSolverController {
         }
         MazeSolver mazeSolver = new MazeSolver();
         mazeSolver.setup(mazeArray);
-        return mazeSolver.findPath(4, 1);
+        System.out.println(mazeSolver.findPath(1, 1));
+        return "a7a 3lak";
     }
 }
