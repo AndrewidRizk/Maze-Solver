@@ -1,4 +1,4 @@
-package com.example.MazeSolver.Controller;
+package com.example.MazeSolver.controller;
 
 @SuppressWarnings("javadoc")
 public class MainTestMaze {

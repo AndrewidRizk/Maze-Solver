@@ -1,4 +1,4 @@
-package com.example.MazeSolver.Controller;
+package com.example.MazeSolver.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
