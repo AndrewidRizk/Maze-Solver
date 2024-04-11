@@ -1,7 +1,11 @@
-package com.example.MazeSolver.controller;
+package com.example.mazesolver.controller;
 
 import java.util.ArrayList;
 
+
+/**
+ * auther Andro Rizk
+ */
 public class MazeSolver {
 	Maze dogMaze;
 
