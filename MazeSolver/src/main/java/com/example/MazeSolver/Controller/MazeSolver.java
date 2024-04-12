@@ -1,12 +1,14 @@
 package com.example.mazesolver.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * auther Andro Rizk
  */
 public class MazeSolver {
 	Maze dogMaze;
+	private boolean[][] visited;
 
 	/**
 	 * This method sets up the maze using the given input argument
@@ -20,7 +22,10 @@ public class MazeSolver {
 		 */
 
 		dogMaze = new Maze(maze);
-
+		this.visited = new boolean[maze.length][maze[0].length];
+		for (boolean[] row : visited) {
+			Arrays.fill(row, false);
+		}
 	}
 
 	/**
@@ -135,36 +140,30 @@ public class MazeSolver {
 	 *         No whitespace is allowed in the output.
 	 */
 	public String findPath(int row, int column) {
-		int length = this.dogMaze.getReference().length; // Automatically gets the number of rows in the maze
-		int width = this.dogMaze.getReference()[0].length; // Automatically gets the number of columns in the maze
-
-		// Setting up initial position and default direction
-		int entranceRow = row;
-		int entranceColumn = column;
-		char direction = ' '; // Will determine the direction based on the entrance position
-
-		// Close the respective wall of the entrance
-		if (row == 0) {
-			direction = 'T'; // Top entrance
-			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 0);
-		} else if (row == length - 1) {
-			direction = 'B'; // Bottom entrance
-			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 2);
-		} else if (column == 0) {
-			direction = 'L'; // Left entrance
-			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 1);
-		} else if (column == width - 1) {
-			direction = 'R'; // Right entrance
-			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 3);
+		if (ifGate(row, column)) { // If starting point is a gate, initiate from here.
+			return findPathHelper(row, column, "", true);
 		}
-
-		// Compute and return the shortest path from the entrance
-		return findPathHelper(direction, row, column, entranceRow, entranceColumn, "");
+		return "No path found or entrance not on gate";
 	}
 
 	// Utility to close a specific wall in the maze cell's string representation
-	private String closeWall(String cell, int wallIndex) {
-		return cell.substring(0, wallIndex) + '1' + cell.substring(wallIndex + 1);
+	private String closeWall(int row, int column, int wallIndex) {
+		char[] cell = dogMaze.getReference()[row][column].toCharArray();
+		if (wallIndex >= 0)
+			cell[wallIndex] = '1';
+		return new String(cell);
+	}
+
+	private int getWallIndex(int row, int column, int length, int width) {
+		if (row == 0)
+			return 0;
+		if (row == length - 1)
+			return 2;
+		if (column == 0)
+			return 1;
+		if (column == width - 1)
+			return 3;
+		return -1;
 	}
 
 	/**
@@ -179,32 +178,19 @@ public class MazeSolver {
 	 *         it is a Gate returns true
 	 */
 	public boolean ifGate(int row, int column) {
-		int length = 0; // represent the length of the dog Maze
-		int width = 0; // represent the width of the dog Maze
-		for (int i = 0; i < this.dogMaze.getReference().length; i++) {
-			length = length + 1; // getting the length of the rectangular array by counting
-		}
-		// getting the width of the rectangular array using only the first array in the
-		// 2D array because it is assumed that it is either a rectangular or a square 2D
-		// array
-		for (int i = 0; i < this.dogMaze.getReference()[0].length; i++) {
-			width = width + 1;
+		int length = dogMaze.getReference().length;
+		int width = dogMaze.getReference()[0].length;
 
-		}
-		if ((row == 0 && column == 0) && (dogMaze.getReference()[row][column].charAt(0) == '0'
-				|| dogMaze.getReference()[row][column].charAt(1) == '0')) {
+		String cell = dogMaze.getReference()[row][column];
+		if (row == 0 && cell.charAt(0) == '0')
 			return true;
-		}
-		if (row == 0 && dogMaze.getReference()[row][column].charAt(0) == '0') {
+		if (row == length - 1 && cell.charAt(2) == '0')
 			return true;
-		} else if (row == length - 1 && dogMaze.getReference()[row][column].charAt(2) == '0') {
+		if (column == 0 && cell.charAt(1) == '0')
 			return true;
-		} else if (column == 0 && dogMaze.getReference()[row][column].charAt(1) == '0') {
+		if (column == width - 1 && cell.charAt(3) == '0')
 			return true;
-		} else if (column == width - 1 && dogMaze.getReference()[row][column].charAt(3) == '0') {
-			return true;
-		} else
-			return false;
+		return false;
 	}
 
 	/**
@@ -332,106 +318,51 @@ public class MazeSolver {
 	 * @return the string of the right path to the exit including all the possible
 	 *         tries
 	 */
-	public String findPathHelper(char c, int row, int column, int entranceRow, int entranceColumn, String Path) {
-
-		if (ifGate(row, column) && (row != entranceRow || column != entranceColumn)) // base case // 0
-		{
-			return toString(row, column);
-
+	private String findPathHelper(int row, int column, String path, boolean isStart) {
+		if (row < 0 || row >= dogMaze.getRows() || column < 0 || column >= dogMaze.getCols() || visited[row][column]) {
+			return null; // Return null if out of bounds or already visited.
 		}
 
-		// recursive cases
-		// Checking if i am coming from Top 'T', including all the possible cases
+		path += toString(row, column); // Assuming toString formats coordinates correctly.
+		visited[row][column] = true;
 
-		if (c == 'T' && dogMaze.getReference()[row][column].charAt(3) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('L', row, column + 1, entranceRow, entranceColumn, Path); // --> going right
-			return Path;
-		}
-		if (c == 'T' && dogMaze.getReference()[row][column].charAt(2) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('T', row + 1, column, entranceRow, entranceColumn, Path); // --> going to the
-																								// bottom
-			return Path;
-		}
-		if (c == 'T' && dogMaze.getReference()[row][column].charAt(1) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('R', row, column - 1, entranceRow, entranceColumn, Path); // --> going to the left
-			return Path;
+		// Check if it's a gate and not the starting point or if the starting point can
+		// also be an exit.
+		if (ifGate(row, column) && (!isStart || path.length() > toString(row, column).length())) {
+			return path;
 		}
 
-		// Checking if i am coming from Bottom 'B', including all the possible cases
+		// No longer the start after the first call.
+		isStart = false;
 
-		if (c == 'B' && dogMaze.getReference()[row][column].charAt(3) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('L', row, column + 1, entranceRow, entranceColumn, Path); // --> going right
-			return Path;
-		}
-		if (c == 'B' && dogMaze.getReference()[row][column].charAt(0) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('B', row - 1, column, entranceRow, entranceColumn, Path); // --> going to the Top
-			return Path;
-		}
-		if (c == 'B' && dogMaze.getReference()[row][column].charAt(1) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('R', row, column - 1, entranceRow, entranceColumn, Path); // --> going to the left
-			return Path;
-		}
+		String[] directions = new String[4];
+		directions[0] = dogMaze.getReference()[row][column].charAt(0) == '0'
+				? findPathHelper(row - 1, column, path, isStart)
+				: null;
+		directions[1] = dogMaze.getReference()[row][column].charAt(1) == '0'
+				? findPathHelper(row, column - 1, path, isStart)
+				: null;
+		directions[2] = dogMaze.getReference()[row][column].charAt(2) == '0'
+				? findPathHelper(row + 1, column, path, isStart)
+				: null;
+		directions[3] = dogMaze.getReference()[row][column].charAt(3) == '0'
+				? findPathHelper(row, column + 1, path, isStart)
+				: null;
 
-		// Checking if i am coming from Right 'R', including all the possible cases
-		if (c == 'R' && dogMaze.getReference()[row][column].charAt(1) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('R', row, column - 1, entranceRow, entranceColumn, Path); // --> going to the left
-			return Path;
-		}
-		if (c == 'R' && dogMaze.getReference()[row][column].charAt(2) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('T', row + 1, column, entranceRow, entranceColumn, Path); // --> going Bottom
+		visited[row][column] = false; // Unmark as visited before backtracking.
 
-			return Path;
-		}
-		if (c == 'R' && dogMaze.getReference()[row][column].charAt(0) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('B', row - 1, column, entranceRow, entranceColumn, Path); // --> going to the Top
-			return Path;
-		}
-
-		// Checking if i am coming from Left 'L', including all the possible cases
-
-		if (c == 'L' && dogMaze.getReference()[row][column].charAt(2) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('T', row + 1, column, entranceRow, entranceColumn, Path); // --> going Bottom
-			return Path;
-		}
-		if (c == 'L' && dogMaze.getReference()[row][column].charAt(0) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('B', row - 1, column, entranceRow, entranceColumn, Path); // --> going to the Top
-			return Path;
-		}
-		if (c == 'L' && dogMaze.getReference()[row][column].charAt(3) == '0') {
-			Path = Path + toString(row, column)
-					+ findPathHelper('L', row, column + 1, entranceRow, entranceColumn, Path); // --> going to the Right
-			return Path;
-		} else {
-			if (c == 'T') {
-
-				return Path + toString(row, column)
-						+ findPathHelper('B', row, column, entranceRow, entranceColumn, Path);
-			} else if (c == 'B') {
-
-				return Path + toString(row, column)
-						+ findPathHelper('T', row, column, entranceRow, entranceColumn, Path);
-			} else if (c == 'R') {
-
-				return Path + toString(row, column)
-						+ findPathHelper('L', row, column, entranceRow, entranceColumn, Path);
-			} else if (c == 'L') {
-
-				return Path + toString(row, column)
-						+ findPathHelper('R', row, column, entranceRow, entranceColumn, Path);
+		for (String dir : directions) {
+			if (dir != null) {
+				return dir; // Return the first found path.
 			}
 		}
-		return "";
+
+		return null; // Return null if no paths lead to an exit.
+	}
+
+	private boolean isValid(int row, int col) {
+		return row >= 0 && row < dogMaze.getReference().length &&
+				col >= 0 && col < dogMaze.getReference()[0].length;
 	}
 
 }
@@ -445,6 +376,8 @@ public class MazeSolver {
 
 class Maze {
 	private String[][] maze;
+	private int rows;
+	private int columns;
 
 	/**
 	 * This constructor makes the maze.
@@ -473,12 +406,21 @@ class Maze {
 		}
 
 		this.maze = new String[length][width];
-
+		this.rows = length;
+		this.columns = width;
 		for (int i = 0; i < length; i++) {
 			for (int j = 0; j < width; j++) {
 				this.maze[i][j] = maze[i][j];
 			}
 		}
+	}
+
+	public int getRows() {
+		return rows;
+	}
+
+	public int getCols() {
+		return columns;
 	}
 
 	/**
