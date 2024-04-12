@@ -2,7 +2,6 @@ package com.example.mazesolver.controller;
 
 import java.util.ArrayList;
 
-
 /**
  * auther Andro Rizk
  */
@@ -135,93 +134,37 @@ public class MazeSolver {
 	 *         input parameter (i.e. (row,column)
 	 *         No whitespace is allowed in the output.
 	 */
-	public String findPath(int row, int column) // returns --> shortest path
-	{
-		int length = 0; // represent the length of the dog Maze
-		int width = 0; // represent the width of the dog Maze
-		String Path = ""; // initializing String path that represents the Path to the exit
-		for (int i = 0; i < this.dogMaze.getReference().length; i++) {
-			length = length + 1; // getting the length of the rectangular array by counting
-		}
-		// getting the width of the rectangular array using only the first array in the
-		// 2D array because it is assumed that it is either a rectangular or a square 2D
-		// array
-		for (int i = 0; i < this.dogMaze.getReference()[0].length; i++) {
-			width = width + 1;
+	public String findPath(int row, int column) {
+		int length = this.dogMaze.getReference().length; // Automatically gets the number of rows in the maze
+		int width = this.dogMaze.getReference()[0].length; // Automatically gets the number of columns in the maze
 
-		}
+		// Setting up initial position and default direction
+		int entranceRow = row;
+		int entranceColumn = column;
+		char direction = ' '; // Will determine the direction based on the entrance position
 
-		int entranceRow = row; // represents the row of the entrance
-		int entranceColumn = column; // represents the column of the entrance
-
-		// Checking the corners as they can have two walls open and can be treated as an
-		// entrance and an open path. in this case we class both walls
-		// calling the shortestPath method to get the shortest path to the exit
-
-		if (row == 0 && column == 0) {
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 0) + "1"
-					+ dogMaze.getReference()[row][column].substring(0 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 1) + "1"
-					+ dogMaze.getReference()[row][column].substring(1 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('L', row, column, entranceRow, entranceColumn, Path));
-		} else if (row == 0 && column == width - 1) {
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 0) + "1"
-					+ dogMaze.getReference()[row][column].substring(0 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 3) + "1"
-					+ dogMaze.getReference()[row][column].substring(3 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('L', row, column, entranceRow, entranceColumn, Path));
-		} else if (row == length - 1 && column == 0) {
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 1) + "1"
-					+ dogMaze.getReference()[row][column].substring(1 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 2) + "1"
-					+ dogMaze.getReference()[row][column].substring(2 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('L', row, column, entranceRow, entranceColumn, Path));
+		// Close the respective wall of the entrance
+		if (row == 0) {
+			direction = 'T'; // Top entrance
+			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 0);
+		} else if (row == length - 1) {
+			direction = 'B'; // Bottom entrance
+			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 2);
+		} else if (column == 0) {
+			direction = 'L'; // Left entrance
+			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 1);
+		} else if (column == width - 1) {
+			direction = 'R'; // Right entrance
+			dogMaze.getReference()[row][column] = closeWall(dogMaze.getReference()[row][column], 3);
 		}
 
-		else if (row == length - 1 && column == width - 1) {
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 2) + "1"
-					+ dogMaze.getReference()[row][column].substring(2 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 3) + "1"
-					+ dogMaze.getReference()[row][column].substring(3 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('L', row, column, entranceRow, entranceColumn, Path));
-		}
+		// Compute and return the shortest path from the entrance
+		return findPathHelper(direction, row, column, entranceRow, entranceColumn, "");
+	}
 
-		// deciding where is the entrance
-		else if (column == 0) // if the entrance in the left --> 'L'
-		{
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 1) + "1"
-					+ dogMaze.getReference()[row][column].substring(1 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('L', row, column, entranceRow, entranceColumn, Path));
-		} else if (row == 0) // top --> 'T'
-		{
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 0) + "1"
-					+ dogMaze.getReference()[row][column].substring(0 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('T', row, column, entranceRow, entranceColumn, Path));
-		} else if (column == width - 1) // right --> 'R'
-		{
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 3) + "1"
-					+ dogMaze.getReference()[row][column].substring(3 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('R', row, column, entranceRow, entranceColumn, Path));
-		} else if (row == length - 1) // bottom -->'B'
-		{
-			dogMaze.getReference()[row][column] = dogMaze.getReference()[row][column].substring(0, 2) + "1"
-					+ dogMaze.getReference()[row][column].substring(2 + 1); // closing the entrance so to mark it as a
-																			// non possible solution
-			return shortestPath(findPathHelper('B', row, column, entranceRow, entranceColumn, Path));
-		}
-
-		return ""; // not implemented yet
+	// Utility to close a specific wall in the maze cell's string representation
+	private String closeWall(String cell, int wallIndex) {
+		return cell.substring(0, wallIndex) + '1' + cell.substring(wallIndex + 1);
 	}
 
 	/**
