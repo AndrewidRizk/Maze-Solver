@@ -1,8 +1,11 @@
+# Build stage
 FROM maven:3.8.5-openjdk-17 AS build
-COPY . .
+COPY . /app
+WORKDIR /app
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17.0.1-jdk-slim 
-COPY --from=build /target/mazesolverApplication-0.0.1-SNAPSHOT.jar mazesolverApplication.jar
+# Package stage
+FROM openjdk:17.0.1-jdk-slim
+COPY --from=build /app/target/mazesolverApplication-0.0.1-SNAPSHOT.jar /mazesolverApplication.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "mazesolverApplication.jar"]
+ENTRYPOINT ["java", "-jar", "/mazesolverApplication.jar"]
