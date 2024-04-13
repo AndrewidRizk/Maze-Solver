@@ -6,6 +6,6 @@ RUN mvn clean package -DskipTests
 
 # Package stage
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /app/target/mazesolverApplication-0.0.1-SNAPSHOT.jar /mazesolverApplication.jar
+COPY --from=build /app/target/mazesolver-0.0.1-SNAPSHOT.jar /mazesolver.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/mazesolverApplication.jar"]
